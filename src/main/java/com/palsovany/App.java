@@ -1,7 +1,14 @@
 package com.palsovany;
 
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import java.awt.Toolkit;
+
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 import org.eclipse.paho.client.mqttv3.IMqttClient;
 import org.eclipse.paho.client.mqttv3.MqttClient;
@@ -12,6 +19,10 @@ import org.eclipse.paho.client.mqttv3.MqttException;
  * Hello world!
  */
 public final class App {
+
+    private static final int FONT_SIZE = 60;
+    private static final String DISPLAY_TEMPLATE = "%.1f °C";
+
     private App() {
     }
 
@@ -22,15 +33,20 @@ public final class App {
      * @throws MqttException
      */
     public static void main(String[] args) throws MqttException {
-        JFrame frame = new JFrame("Hello World Swing Example");
-        JLabel lblText = new JLabel("Hello World!");
-        lblText.setBounds(130,100,100, 40);
-
-        frame.add(lblText);
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        JFrame frame = new JFrame("Temperature Monitor");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(400, 500);
-        frame.setLayout(null);
+        frame.setSize(screenSize);
+        frame.getContentPane().setLayout(new GridBagLayout());
         frame.setVisible(true);
+
+        JLabel lblText = new JLabel(String.format(DISPLAY_TEMPLATE, 0.0f));
+        lblText.setFont(new Font("Serif", Font.BOLD, FONT_SIZE));
+        lblText.setSize(300, FONT_SIZE);
+
+        JPanel panel = new JPanel();
+        panel.add(lblText);
+        frame.add(panel, new GridBagConstraints());
 
         IMqttClient client = new MqttClient("tcp://127.0.0.1:1234", "Test Java client");
         MqttConnectOptions options = new MqttConnectOptions();
@@ -42,7 +58,8 @@ public final class App {
         client.subscribe("test", (topic, msg) -> {
             byte[] payload = msg.getPayload();
             String message = new String(payload);
-            lblText.setText(message);
+            float currentTemperature = Float.parseFloat(message);
+            lblText.setText(String.format(DISPLAY_TEMPLATE, currentTemperature));
         });
     }
 }
