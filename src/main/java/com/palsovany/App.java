@@ -1,10 +1,13 @@
 package com.palsovany;
 
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Toolkit;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -37,16 +40,28 @@ public final class App {
         JFrame frame = new JFrame("Temperature Monitor");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(screenSize);
-        frame.getContentPane().setLayout(new GridBagLayout());
         frame.setVisible(true);
-
+        
         JLabel lblText = new JLabel(String.format(DISPLAY_TEMPLATE, 0.0f));
         lblText.setFont(new Font("Serif", Font.BOLD, FONT_SIZE));
-        lblText.setSize(300, FONT_SIZE);
-
-        JPanel panel = new JPanel();
-        panel.add(lblText);
-        frame.add(panel, new GridBagConstraints());
+        
+        JLabel timeText = new JLabel();
+        timeText.setFont(new Font("Serif", Font.BOLD, 30));
+        
+        Container contentPane = frame.getContentPane();
+        contentPane.setLayout(new GridBagLayout());
+        GridBagConstraints gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.weighty = 0.7;
+        contentPane.add(lblText, gridBagConstraints);
+        gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.weighty = 0.3;
+        gridBagConstraints.anchor = GridBagConstraints.PAGE_END; 
+        contentPane.add(timeText, gridBagConstraints);
 
         IMqttClient client = new MqttClient("tcp://127.0.0.1:1234", "Test Java client");
         MqttConnectOptions options = new MqttConnectOptions();
@@ -55,11 +70,14 @@ public final class App {
         options.setConnectionTimeout(10);
         client.connect(options);
 
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
         client.subscribe("test", (topic, msg) -> {
             byte[] payload = msg.getPayload();
             String message = new String(payload);
             float currentTemperature = Float.parseFloat(message);
             lblText.setText(String.format(DISPLAY_TEMPLATE, currentTemperature));
+            timeText.setText(LocalDateTime.now().format(formatter));
         });
     }
 }
