@@ -4,3 +4,5 @@
 .vscode/
 target/
 TestJavaclient-tcp1270011234/
+TestJavaclient-tcp19216801101234/
+dependency-reduced-pom.xml
