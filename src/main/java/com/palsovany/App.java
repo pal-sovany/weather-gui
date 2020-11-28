@@ -3,6 +3,7 @@ package com.palsovany;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Toolkit;
@@ -39,8 +40,9 @@ public final class App {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         JFrame frame = new JFrame("Temperature Monitor");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(screenSize);
         frame.setVisible(true);
+        frame.setSize(screenSize);
+        frame.setExtendedState(frame.getExtendedState() | Frame.MAXIMIZED_BOTH);
         
         JLabel lblText = new JLabel(String.format(DISPLAY_TEMPLATE, 0.0f));
         lblText.setFont(new Font("Serif", Font.BOLD, FONT_SIZE));
@@ -63,7 +65,7 @@ public final class App {
         gridBagConstraints.anchor = GridBagConstraints.PAGE_END; 
         contentPane.add(timeText, gridBagConstraints);
 
-        IMqttClient client = new MqttClient("tcp://127.0.0.1:1234", "Test Java client");
+        IMqttClient client = new MqttClient("tcp://127.0.0.1:1234", "Weather GUI client");
         MqttConnectOptions options = new MqttConnectOptions();
         options.setAutomaticReconnect(true);
         options.setCleanSession(true);
